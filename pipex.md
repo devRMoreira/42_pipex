@@ -66,6 +66,8 @@ Execute the command using execve()
 
 ### 4. Implement Core Functionality
 
+Special edge cases: /dev/urandom and /dev/stdin
+
 #### Process Management
 - Use `fork` to create child processes.
   - Pseudocode:
