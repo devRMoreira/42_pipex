@@ -13,4 +13,6 @@
 #ifndef PIPEX_H
 # define PIPEX_H
 
+#include "../lib/libft/libft.h"
+
 #endif
