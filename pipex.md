@@ -62,85 +62,77 @@ Check in all possible locations if the binary (command) requested by the user ex
 
 Execute the command using execve()
 
-## Steps to Implement Pipex
+### Pseudo
 
-### 4. Implement Core Functionality
+START
+  PARSE command-line arguments
+  IF number of arguments != 5 THEN
+    PRINT usage message
+    EXIT
 
-Special edge cases: /dev/urandom and /dev/stdin
+  OPEN file1 for reading
+  OPEN file2 for writing
 
-#### Process Management
-- Use `fork` to create child processes.
-  - Pseudocode:
-    ```
-    pid = fork()
-    if pid < 0:
-        handle_error("Fork failed")
-    if pid == 0:
-        // Child process code
-    else:
-        // Parent process code
-    ```
+  CREATE pipe
 
-#### Pipes
-- Use `pipe` for inter-process communication.
-  - Pseudocode:
-    ```
-    int pipefd[2]
-    if pipe(pipefd) == -1:
-        handle_error("Pipe failed")
-    ```
+  FORK process for cmd1
+    IF child process THEN
+      REDIRECT stdin to file1
+      REDIRECT stdout to pipe write end
+      CLOSE pipe read end
+      EXECUTE cmd1
+    ELSE
+      CLOSE pipe write end
 
-#### File Descriptors
-- Use `dup2` to duplicate file descriptors for redirection.
-  - Pseudocode:
-    ```
-    if dup2(pipefd[0], STDIN_FILENO) == -1:
-        handle_error("dup2 failed")
-    if dup2(pipefd[1], STDOUT_FILENO) == -1:
-        handle_error("dup2 failed")
-    ```
+  FORK process for cmd2
+    IF child process THEN
+      REDIRECT stdin to pipe read end
+      REDIRECT stdout to file2
+      CLOSE pipe write end
+      EXECUTE cmd2
+    ELSE
+      CLOSE pipe read end
 
-#### Execute Commands
-- Use `execve` to execute commands.
-  - Pseudocode:
-    ```
-    char *cmd[] = { "command", "arg1", "arg2", NULL }
-    if execve(cmd[0], cmd, envp) == -1:
-        handle_error("execve failed")
-    ```
+  WAIT for both child processes to finish
 
-### 5. Handle Redirection
-- Implement input and output redirection using `open`, `close`, `read`, and `write`.
-  - Pseudocode:
-    ```
-    int infile = open("inputfile", O_RDONLY)
-    if infile < 0:
-        handle_error("Open input file failed")
-    if dup2(infile, STDIN_FILENO) == -1:
-        handle_error("dup2 failed")
-    close(infile)
+  CLOSE all file descriptors
+  ENSURE no memory leaks
 
-    int outfile = open("outputfile", O_WRONLY | O_CREAT | O_TRUNC, 0644)
-    if outfile < 0:
-        handle_error("Open output file failed")
-    if dup2(outfile, STDOUT_FILENO) == -1:
-        handle_error("dup2 failed")
-    close(outfile)
-    ```
+END
 
-### 6. Error Handling
-- Check return values of system calls.
-  - Pseudocode:
-    ```
-    if (system_call() == -1):
-        handle_error("System call failed")
-    ```
 
-- Use `errno`, `perror`, and `strerror` for error reporting.
-  - Pseudocode:
-    ```
-    void handle_error(const char *msg) {
-        perror(msg)
-        exit(EXIT_FAILURE)
-    }
-    ```
+#### Initialize Program
+Parse command-line arguments.
+Check if the number of arguments is correct (should be 5).
+
+#### Open Files
+Open file1 for reading.
+Open file2 for writing.
+
+#### Create Pipes
+Create a pipe to connect the output of cmd1 to the input of cmd2.
+
+#### Fork Process for cmd1
+In the child process:
+Redirect the standard input to file1.
+Redirect the standard output to the write end of the pipe.
+Close the read end of the pipe.
+Execute cmd1.
+In the parent process:
+Close the write end of the pipe.
+
+#### Fork Process for cmd2
+In the child process:
+Redirect the standard input to the read end of the pipe.
+Redirect the standard output to file2.
+Close the write end of the pipe.
+Execute cmd2.
+In the parent process:
+Close the read end of the pipe.
+
+#### Wait for Child Processes
+Wait for both child processes to finish.
+
+#### Clean Up
+Close all file descriptors.
+Ensure no memory leaks.
