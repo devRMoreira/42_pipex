@@ -10,9 +10,20 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-int	main(int argc, char **argv)
-{
-	if(argc != 5)
-		return (0)
+#include "../includes/pipex.h"
 
+
+int	main(int argc, char **argv, char **envp)
+{
+
+	if(argc == 5)
+	{
+		pipex(argv[1], argv[2], argv[3], argv[4], envp);
+	}
+	else
+	{
+		ft_printf("Invalid arguments.\n");
+		exit(1);
+	}
+	return (0);
 }

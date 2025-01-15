@@ -22,15 +22,6 @@ Imagine you have a notebook (file) where you write down results.
 Output redirection means you write the result of your task into the notebook, replacing its content.
 Example: grep a1 < infile | wc -w > outfile means you count the words found and write the result in the notebook called outfile.
 
-### Append Output Redirection (`>>`)
-Similar to output redirection, but instead of replacing, you add the result to the end of the notebook.
-Example: cmd >> file means you add the result of your task to the end of the notebook called file.
-
-### Heredoc (`<<`)
-Imagine you keep writing until you see a special word that tells you to stop.
-Heredoc means you keep reading input until you see a specific word (LIMITER), then you use that input for your task.
-Example: cmd << LIMITER | cmd1 >> file means you keep reading until you see "LIMITER", then send the input through the tube to another task and add the result to the notebook.
-
 
 ### Main checklist
 
@@ -65,21 +56,21 @@ Execute the command using execve()
 ### Pseudo
 
 START
-  PARSE command-line arguments
-  IF number of arguments != 5 THEN
-    PRINT usage message
-    EXIT
+  PARSE command-line arguments ✔
+  IF number of arguments != 5 THEN ✔
+    PRINT usage message ✔
+    EXIT ✔
 
-  OPEN file1 for reading
-  OPEN file2 for writing
+  OPEN file1 for reading ✔
+  OPEN file2 for writing ✔
 
-  CREATE pipe
+  CREATE pipe ✔
 
-  FORK process for cmd1
-    IF child process THEN
-      REDIRECT stdin to file1
-      REDIRECT stdout to pipe write end
-      CLOSE pipe read end
+  FORK process for cmd1 ✔
+    IF child process THEN ✔
+      REDIRECT stdin to file1 ✔
+      REDIRECT stdout to pipe write end ✔
+      CLOSE pipe read end ✔
       EXECUTE cmd1
     ELSE
       CLOSE pipe write end

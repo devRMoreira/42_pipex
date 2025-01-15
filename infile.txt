@@ -1,0 +1,3 @@
+echo "This is a test file for pipex program." > infile.txt
+echo "pipex is a useful program." >> infile.txt
+echo "Another line without the keyword." >> infile.txt

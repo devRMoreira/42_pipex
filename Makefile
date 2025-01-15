@@ -16,28 +16,29 @@ CFLAGS = -Wall -Wextra -Werror
 NAME = pipex
 
 SRC = src/main.c \
+	src/pipex.c \
 
 OBJ = $(SRC:.c=.o)
 
-LIBFT_DIR = libs/libft
+LIBFT_DIR = lib/libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
 all: $(LIBFT) $(NAME)
 
 $(LIBFT):
-	make -C $(LIBFT_DIR)
+	$(MAKE) -C $(LIBFT_DIR)
 
 $(NAME): $(OBJ)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJ)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJ) $(LIBFT)
 
 clean:
 	rm -f $(OBJ)
-	make -C $(LIBFT_DIR) clean
+	$(MAKE) -C $(LIBFT_DIR) clean
 
 
 fclean: clean
 	rm -f $(NAME)
-	make -C $(LIBFT_DIR) fclean
+	$(MAKE) -C $(LIBFT_DIR) fclean
 
 
 re: fclean all
