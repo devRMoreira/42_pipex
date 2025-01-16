@@ -154,8 +154,8 @@ void pipex(char* infile, char* cmd1, char* cmd2, char* outfile, char **envp)
 	}
 	do_cmd(cmd1, fd_in, fd_pipe[1], envp);
 	close(fd_pipe[1]);
-	
-	do_cmd(cmd2, fd_out, fd_pipe[0], envp);
+
+	do_cmd(cmd2, fd_pipe[0], fd_out, envp);
 	close(fd_pipe[0]);
 	close(fd_out);
 
