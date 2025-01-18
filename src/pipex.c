@@ -12,26 +12,18 @@
 
 #include "../includes/pipex.h"
 
-//* infile "grep a1" "wc -w" outfile
-
-static void test_files(char* infile, char* outfile)
+static void free_mem(char** split, char* str)
 {
-	int fd;
+	int i;
 
-	fd = open(infile, O_RDONLY);
-	if(fd < 0)
+	i = 0;
+	while(split[i])
 	{
-		ft_printf("infile error.\n");
-		exit(1);
+		free(split[i]);
+		i++;
 	}
-	close(fd);
-	fd = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if(fd < 0)
-	{
-		ft_printf("outfile error.\n");
-		exit(1);
-	}
-	close(fd);
+	free(split);
+	free(str);
 }
 
 static char	*valid_path(char **paths, char *cmd)
@@ -51,11 +43,14 @@ static char	*valid_path(char **paths, char *cmd)
 		ft_strlcat(temp, "/", size);
 		ft_strlcat(temp, cmd, size);
 		if(access(temp, X_OK) == 0)
+		{
+			free_mem(paths, NULL);
 			return (temp);
+		}
 		free(temp);
 		i++;
 	}
-
+	free_mem(paths, NULL);
 	return (NULL);
 }
 
@@ -82,7 +77,6 @@ static char *find_cmd(char *cmd, char **envp)
 
 	paths = ft_split(temp, ':');
 	valid = valid_path(paths, cmd);
-	free(paths);
 	return (valid);
 }
 
@@ -96,43 +90,19 @@ static void do_cmd(char* cmd, int input_fd, int output_fd, char **envp)
 	args = ft_split(cmd, ' ');
 	path = find_cmd(args[0], envp);
 
-	if(!path)
-	{
-		perror("Invalid command");
-		exit(1);
-	}
-
-	if(pid < 0)
-	{
-		perror("Fork error");
-		exit(1);
-	}
-
 	if(pid == 0)
 	{
-		if(dup2(input_fd, 0) < 0)
-		{
-			perror("dup2 input error");
-			exit(1);
-		}
-		if(dup2(output_fd, 1) < 0)
-		{
-			perror("dup2 input error");
-			exit(1);
-		}
-
-		close(input_fd);
-		close(output_fd);
+		dup2(input_fd, 0);
+		dup2(output_fd, 1);
 		execve(path, args, envp);
-		perror("Command exec failure");
+		perror("execve");
 		exit(1);
 	}
-	else
+	else if(pid > 0)
 	{
-		close(input_fd);
-		close(output_fd);
+		waitpid(pid, NULL, 0);
 	}
-
+	free_mem(args, path);
 }
 
 void pipex(char* infile, char* cmd1, char* cmd2, char* outfile, char **envp)
@@ -141,9 +111,19 @@ void pipex(char* infile, char* cmd1, char* cmd2, char* outfile, char **envp)
 	int fd_out;
 	int fd_pipe[2];
 
-	test_files(infile, outfile);
 	fd_in = open(infile, O_RDONLY);
+	if(fd_in < 0)
+	{
+		ft_printf("infile error.\n");
+		exit(1);
+	}
 	fd_out = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if(fd_out < 0)
+	{
+		ft_printf("outfile error.\n");
+		close(fd_in);
+		exit(1);
+	}
 
 	if(pipe(fd_pipe) < 0)
 	{
@@ -158,7 +138,4 @@ void pipex(char* infile, char* cmd1, char* cmd2, char* outfile, char **envp)
 	do_cmd(cmd2, fd_pipe[0], fd_out, envp);
 	close(fd_pipe[0]);
 	close(fd_out);
-
-	wait(NULL);
-	wait(NULL);
 }
