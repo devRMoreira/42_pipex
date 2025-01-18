@@ -12,9 +12,9 @@
 
 #include "../includes/pipex.h"
 
-static void free_mem(char** split, char* str)
+static void	free_mem(char** split, char* str)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while(split[i])
@@ -100,7 +100,8 @@ static void do_cmd(char* cmd, int input_fd, int output_fd, char **envp)
 	}
 	else if(pid > 0)
 	{
-		waitpid(pid, NULL, 0);
+		close(input_fd);
+		close(output_fd);
 	}
 	free_mem(args, path);
 }
@@ -138,4 +139,7 @@ void pipex(char* infile, char* cmd1, char* cmd2, char* outfile, char **envp)
 	do_cmd(cmd2, fd_pipe[0], fd_out, envp);
 	close(fd_pipe[0]);
 	close(fd_out);
+
+	wait(NULL);
+	wait(NULL);
 }
