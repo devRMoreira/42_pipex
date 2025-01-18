@@ -12,13 +12,11 @@
 
 #include "../includes/pipex.h"
 
-
 int	main(int argc, char **argv, char **envp)
 {
-
-	if(argc == 5)
+	if (argc == 5)
 	{
-		pipex(argv[1], argv[2], argv[3], argv[4], envp);
+		pipex(argv, envp);
 	}
 	else
 	{

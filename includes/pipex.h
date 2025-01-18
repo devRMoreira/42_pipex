@@ -13,10 +13,10 @@
 #ifndef PIPEX_H
 # define PIPEX_H
 
-#include <sys/types.h>
-#include <sys/wait.h>
-#include "../lib/libft/libft.h"
+# include <sys/types.h>
+# include <sys/wait.h>
+# include "../lib/libft/libft.h"
 
-void pipex(char* infile, char* cmd1, char* cmd2, char* outfile, char **envp);
+void	pipex(char **argv, char **envp);
 
 #endif
