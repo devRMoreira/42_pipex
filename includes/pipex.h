@@ -19,5 +19,6 @@
 
 void	pipex(char **argv, char **envp);
 void	open_files(char **argv, int *fd_in, int *fd_out);
+void	close_files(int fd1, int fd2, int fd3, int fd4);
 
 #endif

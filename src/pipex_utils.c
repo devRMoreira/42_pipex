@@ -6,7 +6,7 @@
 /*   By: rimagalh <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 15:14:33 by rimagalh          #+#    #+#             */
-/*   Updated: 2025/01/19 15:23:24 by rimagalh         ###   ########.fr       */
+/*   Updated: 2025/01/19 15:40:30 by rimagalh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,4 +30,15 @@ void	open_files(char **argv, int *fd_in, int *fd_out)
 
 }
 
+void	close_files(int fd1, int fd2, int fd3, int fd4)
+{
+	if(fd1 >= 0)
+		close(fd1);
+	if(fd2 >= 0)
+		close(fd2);
+	if(fd3 >= 0)
+		close(fd3);
+	if(fd4 >= 0)
+		close(fd4);
+}
 

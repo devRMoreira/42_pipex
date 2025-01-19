@@ -101,12 +101,10 @@ void	pipex(char **argv, char **envp)
 	pid_t	pid2;
 
 	open_files(argv, &fd_in, &fd_out);
-
 	if (pipe(fd_pipe) < 0)
 	{
 		perror("Pipe error\n");
-		close(fd_in);
-		close(fd_out);
+		close_files(fd_in, fd_out, -1, -1);
 		exit(1);
 	}
     pid1 = fork();
@@ -115,8 +113,7 @@ void	pipex(char **argv, char **envp)
         close(fd_pipe[0]);
         dup2(fd_in, 0);
         dup2(fd_pipe[1], 1);
-        close(fd_pipe[1]);
-        close(fd_in);
+		close_files(fd_pipe[1], fd_in, -1, -1);
         do_cmd(argv[2], envp);
         exit(0);
     }
@@ -126,16 +123,11 @@ void	pipex(char **argv, char **envp)
         close(fd_pipe[1]);
         dup2(fd_pipe[0], 0);
         dup2(fd_out, 1);
-        close(fd_pipe[0]);
-        close(fd_out);
+		close_files(fd_pipe[0], fd_out, -1, -1);
         do_cmd(argv[3], envp);
         exit(0);
     }
-
-    close(fd_pipe[0]);
-    close(fd_pipe[1]);
-    close(fd_in);
-    close(fd_out);
+	close_files(fd_pipe[0], fd_pipe[1], fd_in, fd_out);
     waitpid(pid1, NULL, 0);
     waitpid(pid2, NULL, 0);
     exit(0);
