@@ -17,6 +17,7 @@ NAME = pipex
 
 SRC = src/main.c \
 	src/pipex.c \
+	src/pipex_utils.c
 
 OBJ = $(SRC:.c=.o)
 

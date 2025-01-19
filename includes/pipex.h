@@ -18,5 +18,6 @@
 # include "../lib/libft/libft.h"
 
 void	pipex(char **argv, char **envp);
+void	open_files(char **argv, int *fd_in, int *fd_out);
 
 #endif

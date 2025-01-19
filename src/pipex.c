@@ -79,50 +79,29 @@ static char	*find_cmd(char *cmd, char **envp)
 	return (valid);
 }
 
-static void	do_cmd(char *cmd, int input_fd, int output_fd, char **envp)
+static void	do_cmd(char *cmd, char **envp)
 {
-	pid_t	pid;
 	char	**args;
 	char	*path;
 
-	pid = fork();
 	args = ft_split(cmd, ' ');
 	path = find_cmd(args[0], envp);
-	if (pid == 0)
-	{
-		dup2(input_fd, 0);
-		dup2(output_fd, 1);
-		execve(path, args, envp);
-		perror("execve");
-		exit(1);
-	}
-	else if (pid > 0)
-	{
-		close(input_fd);
-		close(output_fd);
-	}
+	execve(path, args, envp);
+	perror("command not found");
+	exit(127);
 	free_mem(args, path);
 }
 
 void	pipex(char **argv, char **envp)
 {
-	int	fd_in;
-	int	fd_out;
-	int	fd_pipe[2];
+	int		fd_in;
+	int		fd_out;
+	int		fd_pipe[2];
+	pid_t	pid1;
+	pid_t	pid2;
 
-	fd_in = open(argv[1], O_RDONLY);
-	if (fd_in < 0)
-	{
-		perror("infile error.\n");
-		exit(1);
-	}
-	fd_out = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd_out < 0)
-	{
-		perror("outfile error.\n");
-		close(fd_in);
-		exit(1);
-	}
+	open_files(argv, &fd_in, &fd_out);
+
 	if (pipe(fd_pipe) < 0)
 	{
 		perror("Pipe error\n");
@@ -130,11 +109,34 @@ void	pipex(char **argv, char **envp)
 		close(fd_out);
 		exit(1);
 	}
-	do_cmd(argv[2], fd_in, fd_pipe[1], envp);
-	close(fd_pipe[1]);
-	do_cmd(argv[3], fd_pipe[0], fd_out, envp);
-	close(fd_pipe[0]);
-	close(fd_out);
-	wait(NULL);
-	wait(NULL);
+    pid1 = fork();
+    if (pid1 == 0)
+    {
+        close(fd_pipe[0]);
+        dup2(fd_in, 0);
+        dup2(fd_pipe[1], 1);
+        close(fd_pipe[1]);
+        close(fd_in);
+        do_cmd(argv[2], envp);
+        exit(0);
+    }
+    pid2 = fork();
+    if (pid2 == 0)
+    {
+        close(fd_pipe[1]);
+        dup2(fd_pipe[0], 0);
+        dup2(fd_out, 1);
+        close(fd_pipe[0]);
+        close(fd_out);
+        do_cmd(argv[3], envp);
+        exit(0);
+    }
+
+    close(fd_pipe[0]);
+    close(fd_pipe[1]);
+    close(fd_in);
+    close(fd_out);
+    waitpid(pid1, NULL, 0);
+    waitpid(pid2, NULL, 0);
+    exit(0);
 }
