@@ -46,8 +46,8 @@ static void	do_cmd(char *cmd, char **envp)
 	path = find_cmd(args[0], envp);
 	execve(path, args, envp);
 	perror("command not found");
-	exit(127);
 	free_mem(args, path);
+	exit(127);
 }
 
 static void	exec_first(int fd_in, int *fd_pipe, char**argv, char **envp)
