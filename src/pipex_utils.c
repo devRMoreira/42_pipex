@@ -6,7 +6,7 @@
 /*   By: rimagalh <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 15:14:33 by rimagalh          #+#    #+#             */
-/*   Updated: 2025/01/19 16:06:30 by rimagalh         ###   ########.fr       */
+/*   Updated: 2025/02/07 11:39:53 by rimagalh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ char	*valid_path(char **paths, char *cmd)
 	{
 		temp = malloc(sizeof(char) * size);
 		if (!temp)
-			return (NULL);
+			return (free_mem(paths, NULL), NULL);
 		ft_strlcpy(temp, paths[i], size);
 		ft_strlcat(temp, "/", size);
 		ft_strlcat(temp, cmd, size);

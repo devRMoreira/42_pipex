@@ -33,7 +33,10 @@ static char	*find_cmd(char *cmd, char **envp)
 	if (!temp)
 		return (NULL);
 	paths = ft_split(temp, ':');
+	if (paths == NULL)
+		return (NULL);
 	valid = valid_path(paths, cmd);
+	free_mem(paths, NULL);
 	return (valid);
 }
 
@@ -42,12 +45,28 @@ static void	do_cmd(char *cmd, char **envp)
 	char	**args;
 	char	*path;
 
+	if (*cmd == '\0')
+	{
+		ft_printf("command not found");
+		exit(127);
+	}
 	args = ft_split(cmd, ' ');
+	if (args == NULL || args[0] == NULL)
+	{
+		perror("command not found");
+		free_mem(args, path);
+		exit(127);
+	}
 	path = find_cmd(args[0], envp);
+	if (path == NULL)
+	{
+		perror("command not found");
+		free_mem(args, path);
+		exit(127);
+	}
 	execve(path, args, envp);
 	perror("command not found");
-	free_mem(args, path);
-	exit(127);
+	return (exit(127), free_mem(args, path));
 }
 
 static void	exec_first(int fd_in, int *fd_pipe, char**argv, char **envp)
