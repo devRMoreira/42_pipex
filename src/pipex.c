@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parse.c                                            :+:      :+:    :+:   */
+/*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rimagalh <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/15 15:09:09 by rimagalh          #+#    #+#             */
-/*   Updated: 2025/01/15 15:09:09 by rimagalh         ###   ########.fr       */
+/*   Created: 2025/02/13 11:11:37 by rimagalh          #+#    #+#             */
+/*   Updated: 2025/02/13 11:11:37 by rimagalh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,16 +19,15 @@ static char	*find_cmd(char *cmd, char **envp)
 	char	*valid;
 	int		i;
 
-	i = 0;
+	i = -1;
 	temp = NULL;
-	while (envp[i])
+	while (envp[++i])
 	{
 		if (ft_strncmp(envp[i], "PATH=", 5) == 0)
 		{
 			temp = envp[i] + 5;
 			break ;
 		}
-		i++;
 	}
 	if (!temp)
 		return (NULL);
@@ -36,7 +35,8 @@ static char	*find_cmd(char *cmd, char **envp)
 	if (paths == NULL)
 		return (NULL);
 	valid = valid_path(paths, cmd);
-	free_mem(paths, NULL);
+	if (valid == NULL)
+		return (free_mem(paths, NULL), NULL);
 	return (valid);
 }
 
@@ -47,26 +47,26 @@ static void	do_cmd(char *cmd, char **envp)
 
 	if (*cmd == '\0')
 	{
-		ft_printf("command not found");
+		perror("command not found");
 		exit(127);
 	}
 	args = ft_split(cmd, ' ');
 	if (args == NULL || args[0] == NULL)
 	{
 		perror("command not found");
-		free_mem(args, path);
+		free_mem(args, NULL);
 		exit(127);
 	}
 	path = find_cmd(args[0], envp);
 	if (path == NULL)
 	{
 		perror("command not found");
-		free_mem(args, path);
+		free_mem(args, NULL);
 		exit(127);
 	}
 	execve(path, args, envp);
-	perror("command not found");
-	return (exit(127), free_mem(args, path));
+	perror("execve");
+	return (free_mem(args, path), exit(127));
 }
 
 static void	exec_first(int fd_in, int *fd_pipe, char**argv, char **envp)

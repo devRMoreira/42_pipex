@@ -6,7 +6,7 @@
 /*   By: rimagalh <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/19 15:14:33 by rimagalh          #+#    #+#             */
-/*   Updated: 2025/02/07 11:39:53 by rimagalh         ###   ########.fr       */
+/*   Updated: 2025/02/15 18:13:49 by rimagalh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,14 +45,18 @@ void	free_mem(char **split, char *str)
 {
 	int	i;
 
-	i = 0;
-	while (split[i])
+	if (split)
 	{
-		free(split[i]);
-		i++;
+		i = 0;
+		while (split[i])
+		{
+			free(split[i]);
+			i++;
+		}
+		free(split);
 	}
-	free(split);
-	free(str);
+	if (str)
+		free(str);
 }
 
 char	*valid_path(char **paths, char *cmd)
@@ -72,13 +76,9 @@ char	*valid_path(char **paths, char *cmd)
 		ft_strlcat(temp, "/", size);
 		ft_strlcat(temp, cmd, size);
 		if (access(temp, X_OK) == 0)
-		{
-			free_mem(paths, NULL);
 			return (temp);
-		}
 		free(temp);
 		i++;
 	}
-	free_mem(paths, NULL);
 	return (NULL);
 }
